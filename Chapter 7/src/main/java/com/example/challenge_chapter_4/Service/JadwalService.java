@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,23 +17,25 @@ import java.util.Optional;
 public class JadwalService {
     @Autowired
     JadwalInterface R;
+
+    @Transactional(readOnly = true)
     public Page<JadwalEntity> getAll(int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-
         return R.findAll(pageable);
     }
 
+    @Transactional
     public JadwalEntity addJadwal(JadwalEntity param) {
         Optional<JadwalEntity> jadwalExsist = R.findById(param.getId_jadwal());
         if(jadwalExsist.isPresent()){
-            throw new RuntimeException("Jadwal Id " + param.getId_jadwal() + " Sudah Ada") ;
+            throw new RuntimeException("Jadwal Id " + param.getId_jadwal() + " Sudah Ada");
         }
         else{
             return R.save(param);
         }
-
     }
 
+    @Transactional
     public List<JadwalEntity> addMultipleJadwal(List<JadwalEntity> param) {
         List<JadwalEntity> list = new ArrayList<>();
 
@@ -48,10 +51,12 @@ public class JadwalService {
         return list;
     }
 
+    @Transactional(readOnly = true)
     public JadwalEntity getById(int idJadwal) {
         return R.findById(idJadwal).get();
     }
 
+    @Transactional
     public JadwalEntity updateJadwal(JadwalEntity param) {
         JadwalEntity jadwalExsist = R.findById(param.getId_jadwal()).get();
         jadwalExsist.setFilm_code(param.getFilm_code());
@@ -61,23 +66,12 @@ public class JadwalService {
         jadwalExsist.setJam_selesai(param.getJam_selesai());
 
         return R.save(jadwalExsist);
-
-//        JadwalEntity schedulesEntity = R.findById(param.getId_jadwal()).get();
-//        schedulesEntity.setScheduleId(param.getScheduleId());
-//        schedulesEntity.setFilmCode(param.getFilmCode());
-//        schedulesEntity.setTanggalTayang(param.getTanggalTayang());
-//        schedulesEntity.setJamMulai(param.getJamMulai());
-//        schedulesEntity.setJamSelesai(param.getJamSelesai());
-//        schedulesEntity.setHargaTiket(param.getHargaTiket());
-//        return schedulesRepo.save(schedulesEntity);
-
     }
 
+    @Transactional
     public JadwalEntity deleteJadwal(int idJadwal) {
         JadwalEntity delete = R.findById(idJadwal).get();
         R.deleteById(idJadwal);
         return delete;
     }
-
-
 }
